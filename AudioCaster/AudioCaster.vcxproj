@@ -128,26 +128,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="vertices.csv" />
+    <None Include="resources\vertices.csv" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="RayListener.cpp" />
+    <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\RayListener.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="amazing sound.mp3" />
-    <Media Include="bottle.mp3" />
-    <Media Include="dance-clap-241408.mp3" />
-    <Media Include="snap.mp3" />
-    <Media Include="Tobu.mp3" />
+    <ClInclude Include="include\Buffer.hpp" />
+    <ClInclude Include="include\LineBuffer.hpp" />
+    <ClInclude Include="include\LineObject.hpp" />
+    <ClInclude Include="include\RayListener.hpp" />
+    <ClInclude Include="include\Vec2.h" />
+    <ClInclude Include="include\VertexBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Buffer.hpp" />
-    <ClInclude Include="LineObject.hpp" />
-    <ClInclude Include="LineBuffer.hpp" />
-    <ClInclude Include="RayListener.hpp" />
-    <ClInclude Include="Vec2.h" />
-    <ClInclude Include="VertexBuffer.hpp" />
+    <Media Include="resources\amazing sound.mp3" />
+    <Media Include="resources\bottle.mp3" />
+    <Media Include="resources\dance-clap-241408.mp3" />
+    <Media Include="resources\snap.mp3" />
+    <Media Include="resources\Tobu.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

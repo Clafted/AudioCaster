@@ -16,53 +16,53 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="vertices.csv">
+    <None Include="resources\vertices.csv">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="source\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RayListener.cpp">
+    <ClCompile Include="source\RayListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Buffer.hpp">
       <Filter>Header Files</Filter>
-    </ClCompile>
+    </ClInclude>
+    <ClInclude Include="include\LineBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LineObject.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\RayListener.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Vec2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VertexBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="dance-clap-241408.mp3">
+    <Media Include="resources\amazing sound.mp3">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="snap.mp3">
+    <Media Include="resources\bottle.mp3">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="amazing sound.mp3">
+    <Media Include="resources\dance-clap-241408.mp3">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="bottle.mp3">
+    <Media Include="resources\snap.mp3">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="Tobu.mp3">
+    <Media Include="resources\Tobu.mp3">
       <Filter>Resource Files</Filter>
     </Media>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="RayListener.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LineObject.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LineBuffer.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vec2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

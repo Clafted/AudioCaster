@@ -1,7 +1,7 @@
 #include "raylib.h"
-#include "RayListener.hpp"
-#include "VertexBuffer.hpp"
-#include "LineBuffer.hpp"
+#include "../include/RayListener.hpp"
+#include "../include/VertexBuffer.hpp"
+#include "../include/LineBuffer.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -16,36 +16,39 @@ void displayStats()
 {
 	t = "FPS: " + std::to_string((int)(1.0f / ((float)GetTime() - pTime)));
 	DrawText(t.c_str(), 10, 10, 30, WHITE);
-	pTime = GetTime();
+	pTime = (float)GetTime();
 }
 
 int main()
 {
-	vB.loadData("./vertices.csv");
+	if (vB.loadData("resources/vertices.csv") == -1)
+	{
+		return -1;
+	}
 
 	lB.loadData(vB.vertices, vB.endOfVertices);
 	LineObject sound{ Vec2{400, 400}, Vec2{0,0}, SOUND };
-	sound.addSound("./snap.mp3");
+	sound.addSound("resources/bottle.mp3");
 	lB.lines[lB.lineCount] = sound;
 	lB.lineCount++;
 
 	InitWindow(0, 0, "RayCaster");
-	int sWidth = GetScreenWidth() * 0.7;
-	int sHeight = GetScreenHeight() * 0.7;
+	int sWidth = (int)(GetScreenWidth() * 0.7f);
+	int sHeight = (int)(GetScreenHeight() * 0.7f);
 	SetWindowSize(sWidth, sHeight);
-	SetWindowPosition(GetScreenHeight() * 0.15, GetScreenWidth() * 0.15);
+	SetWindowPosition((int)(GetScreenHeight() * 0.15f), (int)(GetScreenWidth() * 0.15f));
 
 	InitAudioDevice();
 
 
 	RayListener player;
-	player.radius = 15;
+	player.radius = 5;
 	Color bg{ 20, 20, 30 };
 
 	while (!WindowShouldClose())
 	{
-		player.pos.x = GetMouseX();
-		player.pos.y = GetMouseY();
+		player.pos.x = (float)GetMouseX();
+		player.pos.y = (float)GetMouseY();
 
 		BeginDrawing();
 
@@ -75,6 +78,14 @@ int main()
 		sound.deleteOldSounds();
 		if (IsKeyPressed(KEY_SPACE)) 
 			lB.lines[lB.lineCount-1].playSound();
+		if (IsKeyPressed(KEY_UP))
+			player.sampleSize++;
+		if (IsKeyPressed(KEY_DOWN) && player.sampleSize > 1)
+			player.sampleSize--;
+		if (IsKeyPressed(KEY_LEFT) && player.maxBounces > 1)
+			player.maxBounces--;
+		if (IsKeyPressed(KEY_RIGHT) && player.maxBounces < 8)
+			player.maxBounces++;
 
 		player.listen(lB);
 		player.playDetectedSounds();
@@ -83,7 +94,7 @@ int main()
 		displayStats();
 		EndDrawing();
 	}
-
+	CloseAudioDevice();
 	CloseWindow();
 	return 0;
 }

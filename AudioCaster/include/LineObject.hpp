@@ -8,7 +8,7 @@
 #include <utility>
 
 #define MAX_SOUND_COUNT 10
-#define SOUND_SPEED 3043.0f
+#define SOUND_SPEED 2043.0f
 
 enum OBJECT_TYPE { WALL = 0, SOUND = 1 };
 
@@ -76,17 +76,17 @@ struct LineObject
 
 	float getLength()
 	{ 
-		return sqrt(pow(end.x - start.x, 2) + pow(end.y - start.y, 2)); 
+		return sqrt( (end.x-start.x)*(end.x-start.x) + (end.y-start.y)*(end.y-start.y) );
 	}
-
-	static float getLength(Vec2 &p1, Vec2 &p2)
+	 
+	static float getLength(const Vec2& p1, const Vec2& p2)
 	{
-		return sqrt(pow((p1-p2).x, 2) + pow((p1 - p2).y, 2));
+		return sqrt( (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y) );
 	}
 
 	float containsPoint(Vec2 &p)
 	{
-		return getLength(start, p) + getLength(end, p) == getLength();
+		return abs(getLength(start, p) + getLength(end, p) - getLength()) < 0.5f;
 	}
 
 	bool operator<(LineObject other)

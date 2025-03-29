@@ -5,7 +5,6 @@
 #include <fstream>
 #include <string>
 
-#define MAX_VERTEX_COUNT 100
 #define MAX_FILE_LENGTH 10000
 
 struct VertexBuffer : public Buffer
@@ -62,6 +61,11 @@ struct VertexBuffer : public Buffer
 		int floatCount = 0;
 
 		iS.open(file);
+		if (!iS.is_open())
+		{
+			printf("ERROR loadData(): Failed to open data file\n");
+			return -1;
+		}
 		for (int i = 0; i < 10000; i++) val[i] = 0;
 		if (iS.is_open()) iS.getline(val, 10000);
 

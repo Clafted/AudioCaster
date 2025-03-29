@@ -13,7 +13,7 @@ struct LineBuffer : public Buffer
 	int loadData(const Vec2 vertices[MAX_VERTEX_COUNT], int vertexCount)
 	{
 		LineObject line;
-		for (int i = 0; i < MAX_VERTEX_COUNT / 2; i++) lines[i] = LineObject{};
+		for (int i = 0; i < MAX_LINE_COUNT; i++) lines[i] = LineObject{};
 		for (int i = 0; i < vertexCount - 1; i += 2)
 		{
 			line.start = vertices[i];
