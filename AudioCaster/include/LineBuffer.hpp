@@ -16,8 +16,7 @@ struct LineBuffer : public Buffer
 		for (int i = 0; i < MAX_LINE_COUNT; i++) lines[i] = LineObject{};
 		for (int i = 0; i < vertexCount - 1; i += 2)
 		{
-			line.start = vertices[i];
-			line.end = vertices[i + 1];
+			line = LineObject(vertices[i], vertices[i+1]);
 			lines[lineCount] = line;
 			lineCount++;
 		}

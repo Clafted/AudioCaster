@@ -8,6 +8,7 @@
 
 LineBuffer lB;
 VertexBuffer vB;
+RayListener player;
 
 float pTime = 0.0f;
 std::string t;
@@ -16,7 +17,31 @@ void displayStats()
 {
 	t = "FPS: " + std::to_string((int)(1.0f / ((float)GetTime() - pTime)));
 	DrawText(t.c_str(), 10, 10, 30, WHITE);
+	DrawText(("Sample size: " + std::to_string((int)player.sampleSize)).c_str(), 10, 50, 30, WHITE);
+
 	pTime = (float)GetTime();
+}
+
+void drawObjects()
+{
+	for (int i = 0; i < lB.lineCount; i++)
+	{
+		if (lB.lines[i].type == WALL)
+		{
+			DrawLine(lB.lines[i].start.x, lB.lines[i].start.y,
+				lB.lines[i].end.x, lB.lines[i].end.y,
+				WHITE);
+		}
+		else
+		{
+			DrawCircle(lB.lines[i].start.x, lB.lines[i].start.y, lB.lines[i].radius, YELLOW);
+			for (int j = 0; j < lB.lines[i].numActive; j++)
+			{
+				if (lB.lines[i].activeSounds[j].first.volume <= 0.0f) continue;
+				DrawCircleLines(lB.lines[i].start.x, lB.lines[i].start.y, SOUND_SPEED * ((float)GetTime() - lB.lines[i].activeSounds[j].second), YELLOW);
+			}
+		}
+	}
 }
 
 int main()
@@ -27,10 +52,14 @@ int main()
 	}
 
 	lB.loadData(vB.vertices, vB.endOfVertices);
-	LineObject sound{ Vec2{400, 400}, Vec2{0,0}, SOUND };
-	sound.addSound("resources/bottle.mp3");
-	lB.lines[lB.lineCount] = sound;
-	lB.lineCount++;
+	LineObject obj{ Vec2{400, 400}, Vec2{0,0}, SOUND };
+	obj.addSound("resources/snap.mp3");
+	lB.lines[lB.lineCount] = obj;
+	LineObject& snd = lB.lines[lB.lineCount++];
+	obj = LineObject{ Vec2{400, 400}, Vec2{0,0}, SOUND };
+	obj.addSound("resources/amazing sound.mp3");
+	lB.lines[lB.lineCount] = obj;
+	LineObject& snd2 = lB.lines[lB.lineCount++];
 
 	InitWindow(0, 0, "RayCaster");
 	int sWidth = (int)(GetScreenWidth() * 0.7f);
@@ -39,49 +68,36 @@ int main()
 	SetWindowPosition((int)(GetScreenHeight() * 0.15f), (int)(GetScreenWidth() * 0.15f));
 
 	InitAudioDevice();
-
-
-	RayListener player;
-	player.radius = 5;
+	
+	player.radius = 10;
+	
+	snd.radius = player.radius-2;
+	snd2.radius = 40;
+	lB.lines[lB.lineCount] = LineObject(Vec2(player.pos.x - 10.0f, player.pos.y - 30.0f), Vec2(player.pos.x + 10.0f, player.pos.y - 30.0f));
+	LineObject& head = lB.lines[lB.lineCount++];
 	Color bg{ 20, 20, 30 };
 
 	while (!WindowShouldClose())
 	{
 		player.pos.x = (float)GetMouseX();
 		player.pos.y = (float)GetMouseY();
-
-		BeginDrawing();
-
-		ClearBackground(bg);
+		snd.start = player.pos;
+		head.end = Vec2(player.pos.x + 10.0f, player.pos.y + 25.0f);
+		head.start = Vec2(player.pos.x -10.0f, player.pos.y + 25.0f);
 		
-		// Draw lines
-		for (int i = 0; i < lB.lineCount; i++)
-		{
-			if (lB.lines[i].type == WALL)
-			{
-				DrawLine(lB.lines[i].start.x, lB.lines[i].start.y,
-					lB.lines[i].end.x, lB.lines[i].end.y,
-					WHITE);
-			}
-			else
-			{
-				DrawCircle(lB.lines[i].start.x, lB.lines[i].start.y, 40, YELLOW);
-				for (int j = 0; j < MAX_SOUND_COUNT; j++)
-				{
-					if (lB.lines[i].activeSounds[j].first.volume <= 0.0f) continue;
-					DrawCircleLines(lB.lines[i].start.x, lB.lines[i].start.y, SOUND_SPEED * ((float)GetTime() - lB.lines[i].activeSounds[j].second), YELLOW);
-				}
-			}
-			
-		}
+		BeginDrawing();
+		ClearBackground(bg);
 
-		sound.deleteOldSounds();
+		snd.deleteOldSounds();
+		snd2.deleteOldSounds();
 		if (IsKeyPressed(KEY_SPACE)) 
-			lB.lines[lB.lineCount-1].playSound();
+			snd.playSound();
+		if (IsKeyPressed(KEY_W))
+			snd2.playSound();
 		if (IsKeyPressed(KEY_UP))
-			player.sampleSize++;
-		if (IsKeyPressed(KEY_DOWN) && player.sampleSize > 1)
-			player.sampleSize--;
+			player.sampleSize += 20;
+		if (IsKeyPressed(KEY_DOWN) && player.sampleSize > 5)
+			player.sampleSize -= 20;
 		if (IsKeyPressed(KEY_LEFT) && player.maxBounces > 1)
 			player.maxBounces--;
 		if (IsKeyPressed(KEY_RIGHT) && player.maxBounces < 8)
@@ -89,6 +105,7 @@ int main()
 
 		player.listen(lB);
 		player.playDetectedSounds();
+		drawObjects();
 		
 		DrawCircle((int)player.pos.x, (int)player.pos.y, player.radius, GREEN);
 		displayStats();

@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-#define MAX_SOUND_COUNT 10
+#define MAX_SOUND_COUNT 20
 #define SOUND_SPEED 2043.0f
 
 enum OBJECT_TYPE { WALL = 0, SOUND = 1 };
@@ -21,15 +21,21 @@ struct SoundInfo
 struct LineObject
 {
 	Vec2 start, end;
+	Vec2 normal;
 	
 	std::pair <SoundInfo, float> activeSounds[MAX_SOUND_COUNT] = {};
-	int numActive = 0;
 	std::string soundFile;
+	int numActive = 0;
+	int radius = 40;
 
-	OBJECT_TYPE type;
+	OBJECT_TYPE type = WALL;
 
-	LineObject() : start(-1.0f), end(-1.0f), type(WALL) {}
-	LineObject(Vec2 start, Vec2 end, OBJECT_TYPE type = WALL) : start(start), end(end), type(type) {}
+	LineObject() : type(WALL) {}
+	LineObject(Vec2 start, Vec2 end, OBJECT_TYPE type = WALL) : start(start), end(end), type(type)
+	{
+		normal= Vec2{ end.y - start.y, start.x - end.x };
+		normal.normalize();
+	}
 
 	void addSound(const char* soundFile)
 	{
@@ -46,22 +52,25 @@ struct LineObject
 	void deleteOldSounds()
 	{
 		int firstEmpty = -1;
-		for (int i = 0; i < MAX_SOUND_COUNT; i++)
+		int currentActive = numActive;
+		for (int i = 0; i < currentActive; i++)
 		{
-			if ((activeSounds[i].first.volume <= 0.0f					// No sound
-				|| (float)GetTime() - activeSounds[i].second > 5.0f)	// Deprecated
-				&& firstEmpty == -1)
+			if (firstEmpty == -1										// No empty spot
+				&& (activeSounds[i].first.volume <= 0.0f					// No sound
+					|| (float)GetTime() - activeSounds[i].second > 5.0f))	// Inactive
 			{
 				firstEmpty = i;
+				numActive--;
 			}
-			else if (firstEmpty != -1)
+			else if (firstEmpty != -1										// Has empty spot
+					&& activeSounds[i].first.volume > 0.0f						// Has sound
+					&& (float)GetTime() - activeSounds[i].second <= 5.0f)	// Active									// There's an empty spot
 			{
+				// Move active sound to empty spot
 				activeSounds[firstEmpty] = activeSounds[i];
-				firstEmpty = -1;
+				firstEmpty = i;
 			}
-			 
 		}
-		numActive = firstEmpty;
 	}
 
 	float getSlope()
@@ -84,7 +93,7 @@ struct LineObject
 		return sqrt( (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y) );
 	}
 
-	float containsPoint(Vec2 &p)
+	float containsPoint(const Vec2 &p)
 	{
 		return abs(getLength(start, p) + getLength(end, p) - getLength()) < 0.5f;
 	}

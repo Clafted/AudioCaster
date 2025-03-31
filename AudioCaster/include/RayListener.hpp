@@ -3,16 +3,16 @@
 
 #include "LineBuffer.hpp"
 #include "Vec2.h"
-#include <map>
+#include <unordered_map>
 #include <utility>
 
-#define MAX_DETECTED 12
+#define MAX_DETECTED 200	// miniaudio supports up to 254 channels
 
 struct RayListener
 {
 	Vec2 pos;
 	std::pair<Vec2, SoundInfo> detPairs[MAX_DETECTED];
-	std::map<std::string, Sound> loadedSounds;
+	std::unordered_map<std::string, Sound> loadedSounds;
 
 	float sampleSize = 25;
 	int maxBounces = 4;
@@ -21,7 +21,10 @@ struct RayListener
 
 	~RayListener();
 
-	float dot(const Vec2& a, const Vec2& b);
+	inline float dot(const Vec2& a, const Vec2& b)
+	{
+		return a.x * b.x + a.y * b.y;
+	}
 
 	/* Find the parameter of collision between a parametric line
 	* and an implicit line, given tail s, direction d, implicit
@@ -41,7 +44,10 @@ struct RayListener
 	* sound, given the active-time of sound soundTime, and length
 	* of ray rayLength.
 	* Returns true if ray is within sound, false otherwise. */
-	bool rayInSound(float soundTime, float rayLength);
+	inline bool rayInSound(float soundTime, float rayLength)
+	{
+		return abs((GetTime() - soundTime) - (rayLength / SOUND_SPEED)) < 0.01f;
+	}
 	void clearDetected();
 
 	/* Finds the closest object collision between a parametric
