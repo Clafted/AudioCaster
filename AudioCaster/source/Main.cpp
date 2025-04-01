@@ -18,6 +18,7 @@ void displayStats()
 	t = "FPS: " + std::to_string((int)(1.0f / ((float)GetTime() - pTime)));
 	DrawText(t.c_str(), 10, 10, 30, WHITE);
 	DrawText(("Sample size: " + std::to_string((int)player.sampleSize)).c_str(), 10, 50, 30, WHITE);
+	DrawText(("Num bounces: " + std::to_string((int)player.maxBounces)).c_str(), 10, 90, 30, WHITE);
 
 	pTime = (float)GetTime();
 }

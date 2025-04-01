@@ -15,7 +15,7 @@ float RayListener::getLineHit(Vec2& s, Vec2& d, LineObject& line, float t)
 	float dP = dot(d, line.normal);
 	if (dP == 0.0f) return -1.0f;
 	float collision = dot(line.end - s, line.normal) / dP;
-	if (0.0f < collision && collision <= t) return collision;
+	if (0.0f < collision && collision <= t && line.containsPoint(s + d*collision)) return collision;
 	return -1.0f;
 }
 
@@ -42,10 +42,8 @@ LineObject* RayListener::findClosestObject(Vec2 &s, Vec2 &d, float t, LineBuffer
 	{
 		o = &objects.lines[i];
 		nCO = (o->type == WALL) ? getLineHit(s, d, *o, t) : getSoundHit(s, d, *o, t);
-		// Skip if no collision OR collision is farther than previous OR collision not in wall
-		if (nCO <= 0.1f
-			|| (closestDist != -1.0f && closestDist <= nCO)
-			|| (o->type == WALL && !o->containsPoint(s + d * nCO))) continue;
+		// Skip if no collision OR collision is farther than previous
+		if (nCO <= 0.1f || (closestDist != -1.0f && closestDist <= nCO)) continue;
 		closestDist = nCO;
 		closest = o;
 	}
@@ -129,7 +127,7 @@ void RayListener::playDetectedSounds()
 
 		s = LoadSoundAlias(loadedSounds[p->second.file]);
 		SetSoundVolume(s, p->second.volume);
-		SetSoundPan(s, -p->first.x);
+		SetSoundPan(s, -0.5f * (p->first.x - 1.0f));
 		PlaySound(s);
 	}
 }
