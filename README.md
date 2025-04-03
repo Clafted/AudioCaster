@@ -1,7 +1,7 @@
 # AudioCaster
 ## 2D Audio Ray-Tracer
 ### Made using C++ and the Raylib library!
-![ATimg](https://github.com/user-attachments/assets/b7344bbf-f11e-4d09-a5f7-0467c5886fc0)
+![image](https://github.com/user-attachments/assets/8c931412-95f2-466a-8c2d-4f3af197c983)
 ### Controls
 #### - Move Cursor: Moves player (the green one)
 #### - SPACE Key: Play sound
