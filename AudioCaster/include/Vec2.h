@@ -14,11 +14,17 @@ struct Vec2
 	Vec2(float xy) : v{ xy, xy } {}
 	Vec2(float x, float y) : v{ x, y } {}
 	Vec2(const Vec2& v) : v{ v.x, v.y } {}
+	Vec2(const Vector2& v) : v{ v.x, v.y } {}
 	
 	inline void operator=(const Vec2& other)
 	{
 		x = other.x;
 		y = other.y;
+	}
+
+	static inline float dot(const Vec2& a, const Vec2& b)
+	{
+		return a.x * b.x + a.y * b.y;
 	}
 
 	inline Vec2 operator+(const Vec2 &other)
@@ -48,11 +54,18 @@ struct Vec2
 		y -= other.y;
 	}
 
+	inline void operator=(const Vector2& other)
+	{
+		x = other.x;
+		y = other.y;
+	}
+
 	inline void operator*=(const float a)
 	{
 		x *= a;
 		y *= a;
 	}
+
 
 	inline void normalize()
 	{

@@ -36,6 +36,10 @@ struct LineObject
 		normal= Vec2{ end.y - start.y, start.x - end.x };
 		normal.normalize();
 	}
+	LineObject(Vec2 start, int radius, const char* soundFile) : start(start), end(0), radius(radius), type(SOUND)
+	{
+		this->soundFile = soundFile;
+	}
 
 	void addSound(const char* soundFile)
 	{
@@ -98,14 +102,11 @@ struct LineObject
 		return abs(getLength(start, p) + getLength(end, p) - getLength()) < 0.5f;
 	}
 
-	bool operator<(LineObject other)
-	{
-		return getLength() < other.getLength();
-	}
 
-	bool operator>(LineObject other)
+	void move(Vec2 displacement)
 	{
-		return getLength() > other.getLength();
+		start += displacement;
+		end += displacement;
 	}
 };
 

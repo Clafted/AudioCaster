@@ -12,14 +12,14 @@ RayListener::~RayListener()
 
 float RayListener::getLineHit(Vec2& s, Vec2& d, LineObject& line, float t)
 {
-	float dP = dot(d, line.normal);
+	float dP = Vec2::dot(d, line.normal);
 	if (dP == 0.0f) return -1.0f;
-	float collision = dot(line.end - s, line.normal) / dP;
+	float collision = Vec2::dot(line.end - s, line.normal) / dP;
 	if (0.0f < collision && collision <= t && line.containsPoint(s + d*collision)) return collision;
 	return -1.0f;
 }
 
-float RayListener::getSoundHit(Vec2 &s, Vec2 &d, LineObject& sound, float &t)
+float RayListener::getSoundHit(Vec2 &s, Vec2 &d, LineObject& sound, float t)
 {
 	float dist = LineObject::getLength(s, sound.start);
 	if (t < dist || LineObject::getLength(s + d * dist, sound.start) > sound.radius) return -1.0f;
@@ -37,11 +37,13 @@ LineObject* RayListener::findClosestObject(Vec2 &s, Vec2 &d, float t, LineBuffer
 	float nCO;
 	LineObject* o = nullptr, *closest = nullptr;
 	closestDist = -1.0f;
+
 	// Find closest colliding wall
 	for (int i = 0; i < objects.lineCount; i++)
 	{
 		o = &objects.lines[i];
 		nCO = (o->type == WALL) ? getLineHit(s, d, *o, t) : getSoundHit(s, d, *o, t);
+
 		// Skip if no collision OR collision is farther than previous
 		if (nCO <= 0.1f || (closestDist != -1.0f && closestDist <= nCO)) continue;
 		closestDist = nCO;
@@ -53,8 +55,6 @@ LineObject* RayListener::findClosestObject(Vec2 &s, Vec2 &d, float t, LineBuffer
 
 SoundInfo RayListener::castRay(Vec2& s, Vec2& d, float t, float cT, int numBounces, LineBuffer & objects)
 {
-	if (numBounces > maxBounces) return SoundInfo{};
-
 	float cD;
 	LineObject* closest = findClosestObject(s, d, t, objects, cD);
 
@@ -65,50 +65,54 @@ SoundInfo RayListener::castRay(Vec2& s, Vec2& d, float t, float cT, int numBounc
 	}
 
 	LineObject cL{ s, s + d*cD };
+
 	// Distance falloff
 	float p = std::min(1.0f, 0.01f * (cT + t) * (cT + t) / ((cT + cD) * (cT + cD)) );
+	float curTime = GetTime();
 
 	if (closest->type == SOUND)
 	{
 		DrawLine((int)s.x, (int)s.y, (int)cL.end.x, (int)cL.end.y, Color{ 200, 200, 100, (unsigned char)(p * 255) });
-		std::pair<SoundInfo, float> *aS;
+		std::pair<SoundInfo, float>* aS;
 		// Find active sound
 		for (int i = 0; i < closest->numActive; i++)
 		{
 			aS = &closest->activeSounds[i];
-			if (aS->first.volume <= 0.0f || !rayInSound(aS->second, cT + cD)) continue;
+			// Skip if sound is silent OR ray is not within sound proximity
+			if (aS->first.volume <= 0.0f || !rayInSound(curTime - aS->second, (cT+cD)/SOUND_SPEED)) continue;
 			aS->first.volume = p;
 			DrawLine((int)s.x, (int)s.y, (int)cL.end.x, (int)cL.end.y, ORANGE);
-	
+
 			return aS->first;
 		}
 		return SoundInfo{};
 	}
+	if (numBounces == maxBounces) return SoundInfo{};
 
 	Vec2 n = closest->normal;
-	float dP = dot(d, n);
+	float dP = Vec2::dot(d, n);
 	if (dP > 0)	// Flip normal if facing away
 	{
 		n *= -1;
-		dP = -dP;
+		dP *= -1;
 	}
-
-	Vec2 r = d - n * (2*dP);	// Calculate reflection (assumes d and n are unit vectors)
-	SoundInfo reflS = castRay(cL.end, r, t - cD, cT + cD, numBounces + 1, objects); // Reflection
-	SoundInfo refrS = castRay(cL.end, d, t - cD, cT + cD, numBounces + 1, objects); // Refraction
 
 	DrawLine((int)s.x, (int)s.y, (int)cL.end.x, (int)cL.end.y, Color{ 40, 140, 250, (unsigned char)(p * 255) });
 
+	Vec2 r = d - n * (2*dP);	// Calculate reflection (assumes d and n are unit vectors)
+	SoundInfo reflS = castRay(cL.end, r, t - cD, cT + cD, numBounces + 1, objects); // Reflection
+	SoundInfo refrS = castRay(cL.end, d, t - cD, cT + cD, numBounces + 1, objects); // Refraction (currently in original direction)
+
 	if (refrS.file.c_str()[0] != '\0') return SoundInfo{refrS.file, reflS.volume * 0.9f + refrS.volume * 0.1f};
 	if (reflS.file.c_str()[0] != '\0') return SoundInfo{reflS.file, reflS.volume * 0.9f + refrS.volume * 0.1f};
-	return SoundInfo{};
+	return SoundInfo{}; 
 }
 
 void RayListener::playDetectedSounds()
 {
 	std::string cFile = "";
-	Sound s{};
 	std::pair<Vec2, SoundInfo> *p;
+	Sound s{};
 
 	for (int i = 0; i < numDetected; i++)
 	{
@@ -130,21 +134,19 @@ void RayListener::playDetectedSounds()
 		SetSoundPan(s, -0.5f * (p->first.x - 1.0f));
 		PlaySound(s);
 	}
+	numDetected = 0;
 }
 
-void RayListener::listen(LineBuffer& objects)
+void RayListener::listen(LineBuffer& objects, float dTime)
 {
 	SoundInfo s;
 	Vec2 d, p;
-	numDetected = 0;
 	for (float i = 0.0f; i <= 6.28f; i += 6.28f/sampleSize)
 	{
-		d.x = cos(i);
-		d.y = sin(i);
+		d = Vec2{ cos(i), sin(i) };
 		p = pos + d * 10.0f;
 		s = castRay(p, d, 3000.0f, 0.0f, 0, objects);
 		if (s.volume <= 0.0f || numDetected >= MAX_DETECTED) continue;
-		detPairs[numDetected] = { d, s };
-		numDetected++;
+		detPairs[numDetected++] = { d, s };
 	}
 }

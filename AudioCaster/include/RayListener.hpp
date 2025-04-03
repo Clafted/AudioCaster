@@ -15,16 +15,11 @@ struct RayListener
 	std::unordered_map<std::string, Sound> loadedSounds;
 
 	float sampleSize = 25;
+	float dTime = 0.0f;
 	int maxBounces = 4;
 	int numDetected = 0;
-	int radius = 0;
 
 	~RayListener();
-
-	inline float dot(const Vec2& a, const Vec2& b)
-	{
-		return a.x * b.x + a.y * b.y;
-	}
 
 	/* Find the parameter of collision between a parametric line
 	* and an implicit line, given tail s, direction d, implicit
@@ -38,16 +33,18 @@ struct RayListener
 	* sound, and max parameter t.
 	* Returns a positive parameter for existing collision,
 	* -1.0f otherwise. */
-	float getSoundHit(Vec2& s, Vec2& d, LineObject& sound, float &t);
+	float getSoundHit(Vec2& s, Vec2& d, LineObject& sound, float t);
 
 	/* Return whether or not a ray is approximately in an emitted
-	* sound, given the active-time of sound soundTime, and length
-	* of ray rayLength.
+	* sound, given the active-time of sound soundActiveTime, and
+	* of active-time of ray rayActiveTime.
 	* Returns true if ray is within sound, false otherwise. */
-	inline bool rayInSound(float soundTime, float rayLength)
+	inline bool rayInSound(float soundActiveTime, float rayActiveTime)
 	{
-		return abs((GetTime() - soundTime) - (rayLength / SOUND_SPEED)) < 0.01f;
+		return abs(soundActiveTime-rayActiveTime) <= 0.005f;
 	}
+	
+	/* Clears buffer of detected sounds. */
 	void clearDetected();
 
 	/* Finds the closest object collision between a parametric
@@ -57,9 +54,19 @@ struct RayListener
 	* for closest collision.
 	* Returns a pointer to the closest object if any, nullptr otherwise. */
 	LineObject* findClosestObject(Vec2 &s, Vec2 &d, float t, LineBuffer& objects, float& closestDist);
+	
+	/* Casts a ray from origin s, in direction d, with length t,
+	* max-length cT, with numBounces bounces, from a buffer of
+	* objects objects.
+	* Returns a SoundInfo object of the resulting sound. */
 	SoundInfo castRay(Vec2& s, Vec2& d, float t, float cT, int numBounces, LineBuffer& objects);
+	
+	/* Plays all the sounds detected by castRay(). */
 	void playDetectedSounds();
-	void listen(LineBuffer& objects);
+
+	/* Listens for sounds from a buffer of objects
+	* objects, with elapsed time dTime. */
+	void listen(LineBuffer& objects, float dTime);
 };
 
 #endif
