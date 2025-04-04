@@ -1,7 +1,12 @@
 # AudioTracer: 2D Audio Ray-Tracer
 ### Made using C++ and the Raylib library!
-![image](https://github.com/user-attachments/assets/8c931412-95f2-466a-8c2d-4f3af197c983)
+
+
+https://github.com/user-attachments/assets/73ae2c84-6f2b-4796-b430-e439416c9452
+
+
 ### Controls
+(Best tested with headphones 🎧)
 - **Move Cursor**: Moves player (the green one)
 - **SPACE Key**: Play sound
 - **UP/DOWN Key**: In/Decrease sample-size (# rays)
