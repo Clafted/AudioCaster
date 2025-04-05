@@ -155,11 +155,8 @@
     <ClInclude Include="include\VertexBuffer.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="resources\amazing sound.mp3" />
     <Media Include="resources\bottle.mp3" />
-    <Media Include="resources\dance-clap-241408.mp3" />
     <Media Include="resources\snap.mp3" />
-    <Media Include="resources\Tobu.mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -56,9 +56,9 @@ LineObject* RayListener::findClosestObject(Vec2 &s, Vec2 &d, float t, LineBuffer
 SoundInfo RayListener::castRay(Vec2& s, Vec2& d, float t, float cT, int numBounces, LineBuffer & objects)
 {
 	float cD;
-	LineObject* closest = findClosestObject(s, d, t, objects, cD);
+	LineObject* cO = findClosestObject(s, d, t, objects, cD);
 
-	if (cD == -1.0f || t < cD)
+	if (cO == nullptr || cD == -1.0f || t < cD)
 	{
 		DrawLine((int)s.x, (int)s.y, (int)s.x + d.x * t, (int)s.y + d.y * t, Color{ 255, 50, 50, 40 });
 		return SoundInfo{};
@@ -66,18 +66,18 @@ SoundInfo RayListener::castRay(Vec2& s, Vec2& d, float t, float cT, int numBounc
 
 	LineObject cL{ s, s + d*cD };
 
-	// Distance falloff
+	// Distance falloff (from closest object)
 	float p = std::min(1.0f, 0.01f * (cT + t) * (cT + t) / ((cT + cD) * (cT + cD)) );
 	float curTime = GetTime();
 
-	if (closest->type == SOUND)
+	if (cO->type == SOUND)
 	{
 		DrawLine((int)s.x, (int)s.y, (int)cL.end.x, (int)cL.end.y, Color{ 200, 200, 100, (unsigned char)(p * 255) });
 		std::pair<SoundInfo, float>* aS;
 		// Find active sound
-		for (int i = 0; i < closest->numActive; i++)
+		for (int i = 0; i < cO->numActive; i++)
 		{
-			aS = &closest->activeSounds[i];
+			aS = &cO->activeSounds[i];
 			// Skip if sound is silent OR ray is not within sound proximity
 			if (aS->first.volume <= 0.0f || !rayInSound(curTime - aS->second, (cT+cD)/SOUND_SPEED)) continue;
 			aS->first.volume = p;
@@ -89,7 +89,7 @@ SoundInfo RayListener::castRay(Vec2& s, Vec2& d, float t, float cT, int numBounc
 	}
 	if (numBounces == maxBounces) return SoundInfo{};
 
-	Vec2 n = closest->normal;
+	Vec2 n = cO->normal;
 	float dP = Vec2::dot(d, n);
 	if (dP > 0)	// Flip normal if facing away
 	{
@@ -97,14 +97,15 @@ SoundInfo RayListener::castRay(Vec2& s, Vec2& d, float t, float cT, int numBounc
 		dP *= -1;
 	}
 
-	DrawLine((int)s.x, (int)s.y, (int)cL.end.x, (int)cL.end.y, Color{ 40, 140, 250, (unsigned char)(p * 255) });
-
 	Vec2 r = d - n * (2*dP);	// Calculate reflection (assumes d and n are unit vectors)
 	SoundInfo reflS = castRay(cL.end, r, t - cD, cT + cD, numBounces + 1, objects); // Reflection
 	SoundInfo refrS = castRay(cL.end, d, t - cD, cT + cD, numBounces + 1, objects); // Refraction (currently in original direction)
 
-	if (refrS.file.c_str()[0] != '\0') return SoundInfo{refrS.file, reflS.volume * 0.9f + refrS.volume * 0.1f};
-	if (reflS.file.c_str()[0] != '\0') return SoundInfo{reflS.file, reflS.volume * 0.9f + refrS.volume * 0.1f};
+	DrawLine((int)s.x, (int)s.y, (int)cL.end.x, (int)cL.end.y, Color{ 40, 140, 250, 
+		(unsigned char)(p * cO->soundReflection*255) });
+
+	if (refrS.file.c_str()[0] != '\0') return SoundInfo{refrS.file, reflS.volume * cO->soundReflection + refrS.volume * (1.0f - cO->soundAbsorption - cO->soundReflection) };
+	if (reflS.file.c_str()[0] != '\0') return SoundInfo{reflS.file, reflS.volume * cO->soundReflection + refrS.volume * (1.0f - cO->soundAbsorption - cO->soundReflection) };
 	return SoundInfo{}; 
 }
 

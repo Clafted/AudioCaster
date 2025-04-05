@@ -29,7 +29,7 @@ void drawObjects()
 		{
 			DrawLine(lB.lines[i].start.x, lB.lines[i].start.y,
 				lB.lines[i].end.x, lB.lines[i].end.y,
-				WHITE);
+				Color{255, 255, 255, (unsigned char)(255*(1.0f-lB.lines[i].soundAbsorption))});
 		}
 		else
 		{
@@ -55,7 +55,7 @@ int main()
 	LineObject& snd2 = lB.lines[lB.lineCount++];
 	LineObject& head = lB.lines[lB.lineCount++];
 	snd = LineObject(Vec2{ 400, 400 }, 8, "resources/snap.mp3");
-	snd2 = LineObject(Vec2{ 400, 400 }, 40, "resources/amazing sound.mp3");
+	snd2 = LineObject(Vec2{ 400, 400 }, 40, "resources/bottle.mp3");
 	head = LineObject(Vec2(player.pos.x - 10.0f, player.pos.y - 30.0f), Vec2(player.pos.x + 10.0f, player.pos.y - 30.0f));
 
 	// Initialize Raylib

@@ -49,19 +49,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="resources\amazing sound.mp3">
-      <Filter>Resource Files</Filter>
-    </Media>
     <Media Include="resources\bottle.mp3">
       <Filter>Resource Files</Filter>
     </Media>
-    <Media Include="resources\dance-clap-241408.mp3">
-      <Filter>Resource Files</Filter>
-    </Media>
     <Media Include="resources\snap.mp3">
-      <Filter>Resource Files</Filter>
-    </Media>
-    <Media Include="resources\Tobu.mp3">
       <Filter>Resource Files</Filter>
     </Media>
   </ItemGroup>

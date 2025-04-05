@@ -25,6 +25,8 @@ struct LineObject
 	
 	std::pair <SoundInfo, float> activeSounds[MAX_SOUND_COUNT] = {};
 	std::string soundFile;
+	float soundAbsorption = 0.5f;
+	float soundReflection = 0.5f;
 	int numActive = 0;
 	int radius = 40;
 
@@ -39,6 +41,8 @@ struct LineObject
 	LineObject(Vec2 start, int radius, const char* soundFile) : start(start), end(0), radius(radius), type(SOUND)
 	{
 		this->soundFile = soundFile;
+		soundAbsorption = 0.0f;
+		soundReflection = 1.0f;
 	}
 
 	void addSound(const char* soundFile)

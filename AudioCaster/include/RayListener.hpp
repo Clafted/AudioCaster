@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <utility>
 
-#define MAX_DETECTED 200	// miniaudio supports up to 254 channels
+#define MAX_DETECTED 250	// miniaudio supports up to 254 channels
 
 struct RayListener
 {
